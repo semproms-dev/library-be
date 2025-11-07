@@ -1,0 +1,23 @@
+{
+  "name": "library-be",
+  "version": "1.0.0",
+  "main": "server.js",
+  "repository": "https://github.com/semproms-dev/library-be.git",
+  "author": "semproms <semproms5@proton.me>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts"
+  }
+}
