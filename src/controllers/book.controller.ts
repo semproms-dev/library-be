@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllBooks, getAllBooksByTitle, getStats } from '../services/book.service';
+import { getAllBooks, getAllBooksByTitle, getStats, getAllBooksByAuthor } from '../services/book.service';
 const log4js = require('log4js');
 
 // use a named logger for this controller
@@ -21,7 +21,7 @@ export async function getAllBooksController(req: Request, res: Response) {
 export async function getAllBooksByTitleController(req: Request, res: Response) {
     const title = req.params.title;
     try {
-        logger.info('Starting to retrieve books by title from db...');
+        logger.info(`Starting to retrieve books by title ${title} from db...`);
         const books = await getAllBooksByTitle(title);
         return res.json(books);
     } catch (err) {
@@ -30,7 +30,17 @@ export async function getAllBooksByTitleController(req: Request, res: Response) 
     }
 }
 
-export async function getAllBooksByAuthorController(req: Request, res: Response) {}
+export async function getAllBooksByAuthorController(req: Request, res: Response) {
+    const author = req.params.author;
+    try {
+        logger.info(`Starting to retrieve books by author ${author} from db...`);
+        const books = await getAllBooksByAuthor(author);
+        return res.json(books);
+    } catch (err) {
+        logger.error('getAllBooksByAuthorController error:', err);
+        return res.status(500).json({ error: 'Failed to fetch books by author' });
+    }
+}
 
 export async function getStatsController(req: Request, res: Response) {
     try {

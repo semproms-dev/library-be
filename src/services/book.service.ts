@@ -1,4 +1,4 @@
-import {query} from './db';
+import { query } from './db';
 
 export interface Book {
     title: string;
@@ -39,16 +39,29 @@ export async function getAllBooksByTitle(title: string): Promise<Book | null> {
     return row as Book;
 }
 
-export async function getAllBooksByAuthor(title: string): Promise<Book | null> {
-    const sql = 'SELECT * FROM Books WHERE author = ?';
-    const results = await query(sql, [title]);
-
-    if (!results || (Array.isArray(results) && results.length === 0)) {
-        return null;
+export async function getAllBooksByAuthor(author: string): Promise<Book[]> {
+    const q = author || '';
+    if (!q.trim()) {
+        logger.debug('getAllBooksByAuthor: empty author provided');
+            return [];
     }
 
-    const row = Array.isArray(results) ? results[0] : results;
-    return row as Book;
+    const sql = `
+        SELECT *
+        FROM Books
+        WHERE (
+            LOWER(author) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(?, ' ', 1)), '%')
+            AND LOWER(author) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(?, ' ', -1)), '%')
+        )
+        OR LOWER(author) = LOWER(CONCAT(SUBSTRING_INDEX(?, ' ', -1), ', ', SUBSTRING_INDEX(?, ' ', 1)));
+    `;
+
+    const params = [q, q, q, q];
+
+    const results = await query(sql, params);
+    const rows: Book[] = Array.isArray(results) ? (results as any as Book[]) : [];
+
+    return rows;
 }
 
 
