@@ -13,6 +13,9 @@ lib/
 .env
 .env.*
 
+#Ignore all data files
+*csv
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
