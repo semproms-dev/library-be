@@ -1,16 +1,11 @@
-import {Router, Request, Response} from 'express';
-import { getAllBooks } from '../services/book.service';
+import { Router } from 'express';
+import { getAllBooksController, getAllBooksByTitleController, getStatsController } from '../controllers/book.controller';
 
 const router: Router = Router();
 
 // Sample user route
-router.get('/books', async(req: Request, res: Response) => {
-  try {
-    const books = await getAllBooks()
-    res.json(books);
-  } catch(err) {
-    res.status(500).json({error: 'Failed to fetch books'});
-  }
-});
+router.get('/books', getAllBooksController);
+router.get('/books/title/:title', getAllBooksByTitleController);
+router.get('/stats', getStatsController);
 
 export default router;
