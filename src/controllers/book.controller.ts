@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllBooks, getAllBooksByTitle, getStats, getAllBooksByAuthor, insertBook, deleteBookById } from '../services/book.service';
+import { getAllBooks, getAllBooksByTitle, getStats, getAllBooksByAuthor, insertBook, deleteBookById, getAllBooksByParameter } from '../services/book.service';
 const log4js = require('log4js');
 
 // use a named logger for this controller
@@ -74,5 +74,18 @@ export async function deleteBookByIdController(req: Request, res: Response) {
     } catch (err) {
         logger.error('deleteBookById error:', err);
         return res.status(500).json({ error: 'Failed to delete book' });
+    }
+}
+
+export async function getAlllBooksController(req: Request, res: Response) {
+    const parameter = req.params.parameter;
+    const value = req.body.value;
+    try {
+        logger.info(`Starting to retrieve books by ${parameter} = ${value} from db...`);
+        const books = await getAllBooksByParameter(parameter, value);
+        return res.json(books);
+    } catch (err) {
+        logger.error('getAlllBooksController error:', err);
+        return res.status(500).json({ error: 'Failed to fetch books by parameter' });
     }
 }

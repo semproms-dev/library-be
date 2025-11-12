@@ -28,17 +28,24 @@ export async function getAllBooks(): Promise<Book[]> {
     return results as Book[];
 }
 
-export async function getAllBooksByTitle(title: string): Promise<Book | null> {
-    const sql = 'SELECT * FROM Books WHERE title = ?';
-    const results = await query(sql, [title]);
+export async function getAllBooksByParameter(parameter: string, value: string): Promise<Book[]> {
+    const allowed = ['title', 'author', 'year', 'booktype', 'genre', 'owner', 'status', 'location', 'language'];
+    const col = parameter ? parameter.toLowerCase() : '';
 
-    if (!results || (Array.isArray(results) && results.length === 0)) {
-        return null;
+    if(parameter !== 'author') {
+        if (!allowed.includes(col)) {
+        throw new Error(`Invalid search parameter: ${parameter}`);
     }
 
-    const row = Array.isArray(results) ? results[0] : results;
-    return row as Book;
+        const sql = `SELECT * FROM Books WHERE LOWER(\`${col}\`) LIKE ?`;
+        const results = await query(sql, [`%${value.toLowerCase()}%`]);
+        return results as Book[];
+    }
+
+    return getAllBooksByAuthor(value);
+
 }
+
 
 export async function getAllBooksByAuthor(author: string): Promise<Book[]> {
     const q = author || '';
