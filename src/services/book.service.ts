@@ -94,3 +94,9 @@ export async function insertBook(book: Book): Promise<void> {
     const params = [title, author, year, booktype, genre, owner, status, location, language];
     await query(sql, params);
 }
+
+
+export async function deleteBookById(bookId: number): Promise<void> {
+    const sql = 'DELETE FROM Books WHERE BookId = ?';
+    await query(sql, [bookId]);
+}

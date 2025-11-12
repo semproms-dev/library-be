@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllBooks, getAllBooksByTitle, getStats, getAllBooksByAuthor, insertBook } from '../services/book.service';
+import { getAllBooks, getAllBooksByTitle, getStats, getAllBooksByAuthor, insertBook, deleteBookById } from '../services/book.service';
 const log4js = require('log4js');
 
 // use a named logger for this controller
@@ -62,5 +62,17 @@ export async function insertBookController(req: Request, res: Response) {
     } catch (err) {
         logger.error('insertBook error:', err);
         return res.status(500).json({ error: 'Failed to insert book' });
+    }
+}
+
+export async function deleteBookByIdController(req: Request, res: Response) {
+    try {
+        const bookId = parseInt(req.params.id, 10);
+        logger.info(`Deleting book with id ${bookId} from db...`);
+        await deleteBookById(bookId);
+        return res.status(200).json({ message: 'Book deleted successfully' });
+    } catch (err) {
+        logger.error('deleteBookById error:', err);
+        return res.status(500).json({ error: 'Failed to delete book' });
     }
 }
