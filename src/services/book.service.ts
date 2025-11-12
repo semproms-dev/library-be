@@ -34,8 +34,8 @@ export async function getAllBooksByParameter(parameter: string, value: string): 
 
     if(parameter !== 'author') {
         if (!allowed.includes(col)) {
-        throw new Error(`Invalid search parameter: ${parameter}`);
-    }
+            throw new Error(`Invalid search parameter: ${parameter}`);
+        }
 
         const sql = `SELECT * FROM Books WHERE LOWER(\`${col}\`) LIKE ?`;
         const results = await query(sql, [`%${value.toLowerCase()}%`]);
