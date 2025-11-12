@@ -9,6 +9,7 @@ export interface Book {
     owner: string;
     status: string;
     location: string;
+    language: string;
 }
 
 
@@ -82,4 +83,14 @@ export async function getStats(): Promise<OwnerStats[]> {
 
     const results = await query(sql);
     return results as OwnerStats[];
+}
+
+export async function insertBook(book: Book): Promise<void> {
+    const {title, author, year, booktype, genre, owner, status, location, language} = book;
+    const sql = `
+        INSERT INTO Books (title, author, year, booktype, genre, owner, status, location, language)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const params = [title, author, year, booktype, genre, owner, status, location, language];
+    await query(sql, params);
 }

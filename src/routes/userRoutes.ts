@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllBooksController, getAllBooksByTitleController, getStatsController, getAllBooksByAuthorController } from '../controllers/book.controller';
+import { getAllBooksController, getAllBooksByTitleController, getStatsController, getAllBooksByAuthorController, insertBookController } from '../controllers/book.controller';
 
 const router: Router = Router();
 
@@ -8,5 +8,6 @@ router.get('/books', getAllBooksController);
 router.get('/books/title/:title', getAllBooksByTitleController);
 router.get('/books/author/:author', getAllBooksByAuthorController);
 router.get('/stats', getStatsController);
+router.post('/books/insert', insertBookController) 
 
 export default router;

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllBooks, getAllBooksByTitle, getStats, getAllBooksByAuthor } from '../services/book.service';
+import { getAllBooks, getAllBooksByTitle, getStats, getAllBooksByAuthor, insertBook } from '../services/book.service';
 const log4js = require('log4js');
 
 // use a named logger for this controller
@@ -50,5 +50,17 @@ export async function getStatsController(req: Request, res: Response) {
     } catch (err) {
         logger.error('getStatsController error:', err);
         return res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+}
+
+export async function insertBookController(req: Request, res: Response) {
+    try {
+        const book = req.body;
+        logger.info('Inserting new book into db...', book);
+        await insertBook(book);
+        return res.status(201).json({ message: 'Book inserted successfully' });
+    } catch (err) {
+        logger.error('insertBook error:', err);
+        return res.status(500).json({ error: 'Failed to insert book' });
     }
 }
