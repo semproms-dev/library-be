@@ -102,6 +102,33 @@ export async function insertBook(book: Book): Promise<void> {
     await query(sql, params);
 }
 
+export async function modifyBook(bookId: number, book: Partial<Book>): Promise<void> {
+    if (!bookId || isNaN(bookId)) {
+        throw new Error('Invalid bookId');
+    }
+
+    // Whitelist allowed updatable columns
+    const allowed = ['title', 'author', 'year', 'booktype', 'genre', 'owner', 'status', 'location', 'language'];
+    const setClauses: string[] = [];
+    const params: any[] = [];
+
+    for (const col of allowed) {
+        if (Object.prototype.hasOwnProperty.call(book, col) && (book as any)[col] !== undefined) {
+            setClauses.push(`\`${col}\` = ?`);
+            params.push((book as any)[col]);
+        }
+    }
+
+    if (setClauses.length === 0) {
+        throw new Error('No fields provided to update');
+    }
+
+    const sql = `UPDATE Books SET ${setClauses.join(', ')} WHERE BookId = ?`;
+    params.push(bookId);
+
+    await query(sql, params);
+}
+
 
 export async function deleteBookById(bookId: number): Promise<void> {
     const sql = 'DELETE FROM Books WHERE BookId = ?';
