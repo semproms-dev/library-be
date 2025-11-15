@@ -11,6 +11,7 @@ const bookRoutes = require('./routes/userRoutes').default;
 
 const app = express();
 const port = 3000;
+const host = '0.0.0.0';
 const logger = log4js.getLogger();
 logger.info('Logging initialized');
 
@@ -24,6 +25,6 @@ app.get('/', (req: any, res: any) => {
 });
 
 // Start the server
-app.listen(port, () => {
-  logger.info(`Server is running at http://localhost:${port}`);
+app.listen(port, host, () => {
+  logger.info(`Server is running at http://${host}:${port}`);
 });
