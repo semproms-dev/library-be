@@ -1,4 +1,4 @@
-import { query } from './db';
+import { query } from '../config/db-mysql';
 
 export interface Book {
     title: string;
@@ -50,7 +50,6 @@ export async function getAllBooksByParameter(parameter: string, value: string): 
 export async function getAllBooksByAuthor(author: string): Promise<Book[]> {
     const q = author || '';
     if (!q.trim()) {
-        logger.debug('getAllBooksByAuthor: empty author provided');
             return [];
     }
 

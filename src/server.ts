@@ -1,6 +1,8 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const log4js = require('log4js');
+import { connectToDatabase } from "./config/db-mongo";
+
 
 // Configure log4js once at application startup
 log4js.configure({
@@ -28,3 +30,9 @@ app.get('/', (req: any, res: any) => {
 app.listen(port, host, () => {
   logger.info(`Server is running at http://${host}:${port}`);
 });
+
+connectToDatabase().catch((error: string) => {
+    logger.error('Failed to connect to the database:', error);
+    process.exit(1); // Exit the application if the database connection fails
+  }
+);  
