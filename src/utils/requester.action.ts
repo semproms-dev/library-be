@@ -1,4 +1,5 @@
 import { getLogger } from "log4js";
+import { Request } from 'express';
 
 type RequesterInfo = {
   ip?: string;
@@ -8,14 +9,10 @@ type RequesterInfo = {
 
 
 // Terrible coding here, I know, it's late and this is just a project for my home use
-export async function getRequesterInfo(req: any): Promise<RequesterInfo> {
-    const ip = (req as any).ip;
-    const headers = (req as any).headers;
-    const originalUrl = (req as any).originalUrl;
-    getLogger().info('Requester Info:', { ip, headers, originalUrl });
+export async function getRequesterInfo(req: Request): Promise<RequesterInfo> {
   return {
-    ...(ip ? { ip: ip } : {}),
-    ...(headers ? { headers: headers } : {}),
-    ...(originalUrl ? { originalUrl: originalUrl } : {})
+    ...(req.ip ? { ip: req.ip } : {}),
+    ...(req.headers ? { headers: req.headers } : {}),
+    ...(req.originalUrl ? { originalUrl: req.originalUrl } : {})
   };
 }
