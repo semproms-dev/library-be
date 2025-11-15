@@ -14,7 +14,7 @@ services:
       - ./data.csv:/docker-entrypoint-initdb.d/data.csv:ro
 
   mongodb:
-    image: mongo:6.0
+    image: mongo:8.0
     restart: unless-stopped
     ports:
       - "27017:27017"
