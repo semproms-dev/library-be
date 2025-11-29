@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllBooks, getStats, getAllBooksByAuthor, insertBook, deleteBookById, getAllBooksByParameter, modifyBook } from '../services/book.service';
+import { getAllBooks, getStats, getAllBooksByAuthor, insertBook, deleteBookById, getAllBooksByParameter, modifyBook, getConfig } from '../services/book.service';
 import { storeLog } from '../utils/store.actions';
 const log4js = require('log4js');
 import { getRequesterInfo } from '../utils/requester.action';
@@ -8,6 +8,20 @@ import { getRequesterInfo } from '../utils/requester.action';
 const logger = log4js.getLogger('book');
 
 
+
+export async function getConfigController(req: Request, res: Response) {
+    const requesterInfo = await getRequesterInfo(req);
+    try {
+        logger.info('Starting to retrieve config from db...');
+        const config = await getConfig();
+        storeLog({ message: 'Fetching config', level: 'info', meta: { requesterInfo: requesterInfo } });
+        return res.json(config);
+    } catch (err) {
+        logger.error('getConfigController error:', err);
+        storeLog({ message: 'Error fetching config', level: 'error', meta: { error: err, requesterInfo: requesterInfo } });
+        return res.status(500).json({ error: 'Failed to fetch config' });
+    }
+}
 
 export async function getAllBooksController(req: Request, res: Response)  {
     const requesterInfo = await getRequesterInfo(req);

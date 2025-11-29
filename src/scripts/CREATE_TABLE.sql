@@ -10,3 +10,9 @@ create table Books(
 	Location VARCHAR(255) NOT NULL,
 	Language VARCHAR(255) NOT NULL
 );
+
+create table Config(
+	ConfId INT PRIMARY KEY AUTO_INCREMENT,
+	Type VARCHAR(255),
+	Value VARCHAR(255)
+);

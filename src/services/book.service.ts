@@ -13,6 +13,7 @@ export interface Book {
 }
 
 
+
 export interface OwnerStats {
     Owner: string;
     Total_Libros: number;
@@ -20,6 +21,31 @@ export interface OwnerStats {
     Leidos: number;
     Leyendo: number;
     Porcentaje_leidos: number | null;
+}
+
+export interface Config {
+    genre: string[];
+    owner: string[];
+    status: string[];
+    location: string[];
+}
+
+export async function getConfig(): Promise<Config> {
+    const sql = 'SELECT kind, value FROM Config ORDER BY kind, value';
+    const rows = await query(sql);
+
+    const config: Config = {
+        genre: [],
+        owner: [],
+        status: [],
+        location: [],
+    };
+
+    for (const row of rows as { kind: keyof Config; value: string }[]) {
+        config[row.kind].push(row.value);
+    }
+
+    return config;
 }
 
 export async function getAllBooks(): Promise<Book[]> {
