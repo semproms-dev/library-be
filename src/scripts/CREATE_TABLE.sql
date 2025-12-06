@@ -13,6 +13,6 @@ create table Books(
 
 create table Config(
 	ConfId INT PRIMARY KEY AUTO_INCREMENT,
-	Type VARCHAR(255),
+	Kind VARCHAR(255),
 	Value VARCHAR(255)
 );

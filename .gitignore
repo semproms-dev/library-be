@@ -49,3 +49,4 @@ coverage/
 # Optional lockfile warning (do not ignore lockfiles unless intentional)
 # package-lock.json
 # yarn.lock
+init.sql
