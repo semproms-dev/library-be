@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllBooks, getStats, getAllBooksByAuthor, insertBook, deleteBookById, getAllBooksByParameter, modifyBook, getConfig } from '../services/book.service';
+import { getAllBooks, getStats, getAllBooksByAuthor, insertBook, deleteBookById, getAllBooksByParameter, modifyBook, getConfig, getAllBooksByFilterList } from '../services/book.service';
 import { storeLog } from '../utils/store.actions';
 const log4js = require('log4js');
 import { getRequesterInfo } from '../utils/requester.action';
@@ -38,6 +38,30 @@ export async function getAllBooksController(req: Request, res: Response)  {
         logger.error(message);
         storeLog({  message, level: 'error', meta: { error: err, requesterInfo: requesterInfo } });
         return res.status(500).json({ error: 'Failed to fetch books' });
+    }
+}
+
+export async function getBooksByFilterListController(req: Request, res: Response) {
+    const requesterInfo = await getRequesterInfo(req);
+    try {
+        // Accept filters as an object (e.g., { author: "Díaz", genre: "Astronomy" })
+        const filters = req.body.filters || req.body || {};
+        
+        // Validate that filters is an object
+        if (typeof filters !== 'object' || filters === null || Array.isArray(filters)) {
+            return res.status(400).json({ error: 'filters must be an object' });
+        }
+        
+        logger.info('Starting to retrieve books by filter list from db...');
+        storeLog({ message: `Fetching books with filters: ${JSON.stringify(filters)}`, level: 'info', meta: { requesterInfo: requesterInfo } });
+        const result = await getAllBooksByFilterList(filters);
+    
+
+        return res.json(result);
+    } catch (err) {
+        logger.error('getBooksByFilterListController error:', err);
+        storeLog({ message: 'Error fetching books by filter list', level: 'error', meta: { error: err, requesterInfo: requesterInfo } });
+        return res.status(500).json({ error: 'Failed to fetch books by filter list' });
     }
 }
 

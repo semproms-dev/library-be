@@ -17,8 +17,17 @@ const host = '0.0.0.0';
 const logger = log4js.getLogger();
 logger.info('Logging initialized');
 
-// Middleware to parse JSON bodies
-app.use(bodyParser.json());
+// Middleware to parse JSON bodies with UTF-8 encoding
+app.use(bodyParser.json({ charset: 'utf-8' }));
+app.use(bodyParser.urlencoded({ extended: true, charset: 'utf-8' }));
+
+// Middleware to set charset for JSON responses
+app.use((req: any, res: any, next: any) => {
+  res.charset = 'utf-8';
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
+
 app.use('/api', bookRoutes)
 
 // Sample route

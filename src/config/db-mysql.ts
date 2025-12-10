@@ -11,7 +11,13 @@ const pool = mysql.createPool({
   database: process.env.MYSQL_DATABASE,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  charset: 'utf8mb4'
+});
+
+// Ensure charset is set on each connection
+pool.on('connection', (connection: any) => {
+  connection.query('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
 });
 
 export async function query(sql: string, params?: any[]) {

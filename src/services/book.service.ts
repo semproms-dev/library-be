@@ -54,6 +54,68 @@ export async function getAllBooks(): Promise<Book[]> {
     return results as Book[];
 }
 
+type FilterValue = string | number | boolean;
+type FiltersObject = Record<string, FilterValue>;
+
+function buildWhere(filters: FiltersObject, allowed: string[]): { whereClause: string; params: any[] } {
+  // Validate that filters is an object
+  if (typeof filters !== 'object' || filters === null || Array.isArray(filters)) {
+    throw new Error('filters must be an object');
+  }
+
+  const whereClauses: string[] = [];
+  const params: any[] = [];
+
+  // Iterate over the object keys
+  for (const [key, value] of Object.entries(filters)) {
+    // Skip undefined, null, or empty string values
+    if (value === undefined || value === null || value === '') {
+      continue;
+    }
+
+    const col = key.toLowerCase();
+    if (!allowed.includes(col)) {
+      throw new Error(`Invalid filter parameter: ${key}`);
+    }
+    
+    whereClauses.push(`LOWER(\`${col}\`) LIKE ?`);
+    const searchValue = typeof value === 'string' ? value.toLowerCase() : String(value);
+    params.push(`%${searchValue}%`);
+  }
+
+  return {
+    whereClause: whereClauses.join(' AND '),
+    params
+  };
+}
+
+export async function getAllBooksByFilterList(filters: FiltersObject): Promise<Book[]> {
+    console.log('Filters received in getAllBooksByFilterList:', filters);
+    
+    // Validate that filters is an object
+    if (typeof filters !== 'object' || filters === null || Array.isArray(filters)) {
+        throw new Error('filters must be an object');
+    }
+    
+    // If no filters provided, return all books
+    const filterKeys = Object.keys(filters).filter(key => {
+      const value = filters[key];
+      return value !== undefined && value !== null && value !== '';
+    });
+    
+    if (filterKeys.length === 0) {
+        return getAllBooks();
+    }
+
+    const allowed = ['title', 'author', 'year', 'booktype', 'genre', 'owner', 'status', 'location', 'language'];
+
+    const { whereClause, params } = buildWhere(filters, allowed);
+
+    const sql = `SELECT * FROM Books WHERE ${whereClause}`;
+    const results = await query(sql, params);
+    return results as Book[];
+}
+
 export async function getAllBooksByParameter(parameter: string, value: string): Promise<Book[]> {
     const allowed = ['title', 'author', 'year', 'booktype', 'genre', 'owner', 'status', 'location', 'language'];
     const col = parameter ? parameter.toLowerCase() : '';
