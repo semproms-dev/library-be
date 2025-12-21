@@ -44,18 +44,31 @@ export async function getAllBooksController(req: Request, res: Response)  {
 export async function getBooksByFilterListController(req: Request, res: Response) {
     const requesterInfo = await getRequesterInfo(req);
     try {
-        // Accept filters as an object (e.g., { author: "Díaz", genre: "Astronomy" })
-        const filters = req.body.filters || req.body || {};
+        // Accept filters, page, and pageSize from body
+        const filters = req.body.filters || {};
+        const page = req.body.page || 1;
+        const pageSize = req.body.pageSize || 10;
         
         // Validate that filters is an object
         if (typeof filters !== 'object' || filters === null || Array.isArray(filters)) {
             return res.status(400).json({ error: 'filters must be an object' });
         }
         
-        logger.info('Starting to retrieve books by filter list from db...');
-        storeLog({ message: `Fetching books with filters: ${JSON.stringify(filters)}`, level: 'info', meta: { requesterInfo: requesterInfo } });
-        const result = await getAllBooksByFilterList(filters);
-    
+        logger.info(`Starting to retrieve books by filter list from db (page: ${page}, pageSize: ${pageSize})...`);
+        storeLog({ 
+            message: `Fetching books with filters: ${JSON.stringify(filters)}`, 
+            level: 'info', 
+            meta: { requesterInfo: requesterInfo, page, pageSize } 
+        });
+        
+        const result = await getAllBooksByFilterList(filters, page, pageSize);
+        
+        const message = `Returning ${result.data.length} books (page ${result.pagination.page} of ${result.pagination.totalPages})`;
+        storeLog({ 
+            message, 
+            level: 'info', 
+            meta: { requesterInfo: requesterInfo, pagination: result.pagination } 
+        });
 
         return res.json(result);
     } catch (err) {

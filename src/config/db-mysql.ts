@@ -21,6 +21,11 @@ pool.on('connection', (connection: any) => {
 });
 
 export async function query(sql: string, params?: any[]) {
+  // If params is undefined or empty array, don't pass it to execute
+  if (!params || params.length === 0) {
+    const [results] = await pool.execute(sql);
+    return results;
+  }
   const [results] = await pool.execute(sql, params);
   return results;
 }

@@ -48,6 +48,16 @@ export async function getConfig(): Promise<Config> {
     return config;
 }
 
+export interface PaginatedResult<T> {
+    data: T[];
+    pagination: {
+        page: number;
+        pageSize: number;
+        total: number;
+        totalPages: number;
+    };
+}
+
 export async function getAllBooks(): Promise<Book[]> {
     const sql = 'SELECT * FROM Books';
     const results = await query(sql);
@@ -89,31 +99,72 @@ function buildWhere(filters: FiltersObject, allowed: string[]): { whereClause: s
   };
 }
 
-export async function getAllBooksByFilterList(filters: FiltersObject): Promise<Book[]> {
-    console.log('Filters received in getAllBooksByFilterList:', filters);
+export async function getAllBooksByFilterList(
+    filters: FiltersObject,
+    page: number = 1,
+    pageSize: number = 10
+): Promise<PaginatedResult<Book>> {
+    console.log('Filters received in getAllBooksByFilterList:', filters, 'page:', page, 'pageSize:', pageSize);
     
     // Validate that filters is an object
     if (typeof filters !== 'object' || filters === null || Array.isArray(filters)) {
         throw new Error('filters must be an object');
     }
     
-    // If no filters provided, return all books
+    // Validate and normalize pagination parameters
+    const pageNum = Math.max(1, Math.floor(Number(page) || 1));
+    const limitNum = Math.max(1, Math.min(100, Math.floor(Number(pageSize) || 10))); // Max 100 items per page
+    const offset = Math.max(0, (pageNum - 1) * limitNum);
+
+    const allowed = ['title', 'author', 'year', 'booktype', 'genre', 'owner', 'status', 'location', 'language'];
+
+    // Filter out empty values from filters object
     const filterKeys = Object.keys(filters).filter(key => {
       const value = filters[key];
       return value !== undefined && value !== null && value !== '';
     });
-    
-    if (filterKeys.length === 0) {
-        return getAllBooks();
+
+    let whereClause = '';
+    let countParams: any[] = [];
+    let dataParams: any[] = [];
+
+    if (filterKeys.length > 0) {
+        const whereResult = buildWhere(filters, allowed);
+        whereClause = `WHERE ${whereResult.whereClause}`;
+        countParams = [...whereResult.params];
+        // Only include WHERE clause params, not LIMIT/OFFSET since they're interpolated
+        dataParams = [...whereResult.params];
+    } else {
+        // No filters, no params needed since LIMIT/OFFSET are interpolated
+        dataParams = [];
     }
 
-    const allowed = ['title', 'author', 'year', 'booktype', 'genre', 'owner', 'status', 'location', 'language'];
+    // Get total count
+    const countSql = filterKeys.length > 0 
+        ? `SELECT COUNT(*) as total FROM Books ${whereClause}`
+        : 'SELECT COUNT(*) as total FROM Books';
+    const countResult = await query(countSql, countParams.length > 0 ? countParams : undefined);
+    const total = Number((countResult as any[])[0]?.total || 0);
 
-    const { whereClause, params } = buildWhere(filters, allowed);
 
-    const sql = `SELECT * FROM Books WHERE ${whereClause}`;
-    const results = await query(sql, params);
-    return results as Book[];
+    // Get paginated data - LIMIT and OFFSET are interpolated, so only pass WHERE params
+    const sql = filterKeys.length > 0
+        ? `SELECT * FROM Books ${whereClause} ORDER BY BookId LIMIT ${limitNum} OFFSET ${offset}`
+        : `SELECT * FROM Books ORDER BY BookId LIMIT ${limitNum} OFFSET ${offset}`;
+    const results = await query(sql, dataParams.length > 0 ? dataParams : undefined);
+
+    
+    const totalPages = Math.ceil(total / limitNum);
+
+    return {
+        data: results as Book[],
+        pagination: {
+            page: pageNum,
+            pageSize: limitNum,
+            total: total,
+            totalPages: totalPages
+        }
+    };
 }
 
 export async function getAllBooksByParameter(parameter: string, value: string): Promise<Book[]> {
