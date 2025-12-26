@@ -28,6 +28,7 @@ export interface Config {
     owner: string[];
     status: string[];
     location: string[];
+    bookType: string[];
 }
 
 export async function getConfig(): Promise<Config> {
@@ -39,6 +40,7 @@ export async function getConfig(): Promise<Config> {
         owner: [],
         status: [],
         location: [],
+        bookType: []
     };
 
     for (const row of rows as { kind: keyof Config; value: string }[]) {
