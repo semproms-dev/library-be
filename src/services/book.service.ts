@@ -4,7 +4,7 @@ export interface Book {
     title: string;
     author: string;
     year: number;
-    booktype: string;
+    bookType: string;
     genre: string;
     owner: string;
     status: string;
@@ -233,12 +233,14 @@ export async function getStats(): Promise<OwnerStats[]> {
 }
 
 export async function insertBook(book: Book): Promise<void> {
-    const {title, author, year, booktype, genre, owner, status, location, language} = book;
+    const {title, author, year, bookType, genre, owner, status, location, language} = book;
+    
     const sql = `
         INSERT INTO Books (title, author, year, booktype, genre, owner, status, location, language)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    const params = [title, author, year, booktype, genre, owner, status, location, language];
+
+    const params = [title, author, year, bookType, genre, owner, status, location, language];
     await query(sql, params);
 }
 
