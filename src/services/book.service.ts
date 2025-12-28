@@ -1,4 +1,6 @@
 import { query } from '../config/db-mysql';
+const log4js = require('log4js');
+const logger = log4js.getLogger('book.service');
 
 export interface Book {
     title: string;
@@ -89,6 +91,13 @@ function buildWhere(filters: FiltersObject, allowed: string[]): { whereClause: s
     if (!allowed.includes(col)) {
       throw new Error(`Invalid filter parameter: ${key}`);
     }
+
+    if(col === 'booktype') {
+      // Exact match for booktype
+      whereClauses.push(`\`${col}\` = ?`);
+      params.push(value);
+      continue;
+    }
     
     whereClauses.push(`LOWER(\`${col}\`) LIKE ?`);
     const searchValue = typeof value === 'string' ? value.toLowerCase() : String(value);
@@ -106,7 +115,7 @@ export async function getAllBooksByFilterList(
     page: number = 1,
     pageSize: number = 10
 ): Promise<PaginatedResult<Book>> {
-    console.log('Filters received in getAllBooksByFilterList:', filters, 'page:', page, 'pageSize:', pageSize);
+    logger.info('Filters received in getAllBooksByFilterList:', { filters, page, pageSize });
     
     // Validate that filters is an object
     if (typeof filters !== 'object' || filters === null || Array.isArray(filters)) {
