@@ -16,11 +16,11 @@ export interface Book {
 
 export interface OwnerStats {
     Owner: string;
-    Total_Libros: number;
-    Por_leer: number;
-    Leidos: number;
-    Leyendo: number;
-    Porcentaje_leidos: number | null;
+    Total_Books: number;
+    To_Read: number;
+    Already_Read: number;
+    Reading: number;
+    Percentage_Read: number | null;
 }
 
 export interface Config {
@@ -218,11 +218,11 @@ export async function getStats(): Promise<OwnerStats[]> {
     const sql = `
         SELECT
             Owner,
-            COUNT(*) - SUM(Status = 'HB') AS Total_Libros,
-            SUM(Status = 'TBR') AS Por_leer,
-            SUM(Status = 'R')   AS Leidos,
-            SUM(Status = 'WIP') AS Leyendo,
-            ROUND(100 * SUM(Status = 'R') / NULLIF(COUNT(*) - SUM(Status = 'HB'), 0), 2) AS Porcentaje_leidos
+            COUNT(*) - SUM(Status = 'HB') AS Total_Books,
+            SUM(Status = 'TBR') AS To_Read,
+            SUM(Status = 'R')   AS Already_Read,
+            SUM(Status = 'WIP') AS Reading,
+            ROUND(100 * SUM(Status = 'R') / NULLIF(COUNT(*) - SUM(Status = 'HB'), 0), 2) AS Percentage_Read
         FROM Books
         GROUP BY Owner
         ORDER BY Owner;
